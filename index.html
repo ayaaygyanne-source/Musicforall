@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mifiall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ====== MGA KULAY AT VARIABLES ====== */
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1e2229; --text:#f2f1ec; --muted:#8b8f99;
+  --accent:#8b7cff; --accent-ink:#ffffff; --line:rgba(255,255,255,.08);
+  box-sizing:border-box;
+}
+*{box-sizing:inherit}
+html,body{height:100%}
+body{margin:0;color:var(--text);font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(circle at 15% -10%, color-mix(in srgb, var(--accent) 45%, transparent), transparent 55%),
+    radial-gradient(circle at 100% 20%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 50%),
+    var(--bg);
+  background-attachment:fixed;
+  transition:background .4s ease}
+h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
+::selection{background:var(--accent);color:var(--accent-ink)}
+
+/* ====== HEADER ====== */
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px;
+  padding:14px 20px;background:color-mix(in srgb, var(--accent) 12%, rgba(15,17,21,.9));
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-right:auto}
+.brand span{color:var(--accent)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:none;border:none;color:var(--muted);font:500 14px Inter;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all .2s}
+nav button:hover{color:var(--text)}
+nav button.active{color:var(--text);background:var(--panel2)}
+.theme-picker{position:relative;margin-right:8px}
+#themeBtn{background:none;border:1px solid var(--line);color:var(--text);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px;transition:all .2s}
+#themeBtn:hover{border-color:var(--accent)}
+.swatch-panel{display:none;position:absolute;top:42px;left:0;background:var(--panel);border:1px solid var(--line);
+  border-radius:14px;padding:12px;grid-template-columns:repeat(4,1fr);gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:15}
+.swatch-panel.open{display:grid}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s}
+.swatch:hover{transform:scale(1.15)}
+.swatch.selected{border-color:var(--text)}
+#signInBtn{background:var(--accent);color:var(--accent-ink);border:none;padding:9px 16px;border-radius:20px;font:600 13px Inter;cursor:pointer;transition:transform .15s}
+#signInBtn:hover{transform:scale(1.05)}
+#userChip{display:none;align-items:center;gap:8px;background:var(--panel2);padding:6px 10px 6px 6px;border-radius:20px;font-size:13px}
+#userChip .av{width:22px;height:22px;border-radius:50%;background:var(--accent)}
+
+/* ====== MAIN ====== */
+main{max-width:920px;margin:0 auto;padding:28px 20px 160px}
+.hero{display:flex;gap:24px;align-items:center;margin-bottom:32px;padding:24px;border-radius:16px;
+  background:linear-gradient(135deg,var(--panel),var(--panel2));border:1px solid var(--line)}
+.hero .art{width:96px;height:96px;border-radius:12px;flex:none;background:linear-gradient(135deg,var(--accent),#3a3f52)}
+.hero h1{font-size:26px;margin:0 0 6px}
+.hero p{color:var(--muted);margin:0;font-size:14px;line-height:1.5}
+
+/* ====== SEARCH ====== */
+.search-wrap{display:flex;gap:8px;margin-bottom:20px}
+#searchInput{flex:1;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);
+  color:var(--text);font:14px Inter;transition:border-color .2s}
+#searchInput:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+#webSearchBtn{display:none;align-items:center;gap:6px;padding:12px 16px;border-radius:12px;border:1px solid var(--accent);
+  background:none;color:var(--accent);font:600 13px Inter;cursor:pointer;white-space:nowrap;transition:all .2s}
+#webSearchBtn:hover{background:var(--accent);color:var(--accent-ink)}
+#noResults{display:none;color:var(--muted);font-size:13px;padding:20px 0;text-align:center}
+
+/* ====== SECTIONS ====== */
+section{display:none;animation:fadeIn .3s ease}
+section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ====== TRACK ROW ====== */
+.track{display:flex;align-items:center;gap:14px;padding:10px;border-radius:10px;transition:background .2s}
+.track:hover{background:var(--panel)}
+.track-wrap{border-radius:10px}
+.art-sm{width:48px;height:48px;border-radius:8px;flex:none;background-size:cover;background-position:center;position:relative;overflow:hidden}
+.art-sm::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent)}
+.t-info{flex:1;min-width:0}
+.t-title{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-artist{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.follow-btn{border:1px solid var(--line);background:none;color:var(--muted);font-size:11px;padding:2px 8px;border-radius:10px;cursor:pointer;transition:all .2s}
+.follow-btn:hover{border-color:var(--accent);color:var(--accent)}
+.follow-btn.following{color:var(--accent);border-color:var(--accent)}
+.t-actions{display:flex;gap:6px;flex:none}
+.icon-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:8px;border-radius:8px;font-size:16px;line-height:1;transition:all .2s}
+.icon-btn:hover{background:var(--panel2);color:var(--text);transform:scale(1.1)}
+.icon-btn.liked{color:#ff5c7a;animation:pop .3s ease}
+.icon-btn.has-audio{color:var(--accent)}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.play-pill{background:var(--panel2);border:none;color:var(--text);width:34px;height:34px;border-radius:50%;cursor:pointer;flex:none;transition:all .2s}
+.play-pill:hover{background:var(--accent);color:var(--accent-ink);transform:scale(1.1)}
+
+/* ====== COMMENTS ====== */
+.comments-box{display:none;margin:0 10px 10px 78px;padding:12px;background:var(--panel);border-radius:10px;border:1px solid var(--line);animation:fadeIn .3s}
+.c-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;max-height:160px;overflow-y:auto}
+.c-item{font-size:13px;line-height:1.4}
+.c-item b{color:var(--accent);margin-right:6px}
+.c-empty{color:var(--muted);font-size:13px}
+.c-input-row{display:flex;gap:8px}
+.c-input{flex:1;padding:8px 12px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:13px Inter}
+.c-send{background:var(--accent);color:var(--accent-ink);border:none;padding:8px 14px;border-radius:20px;font:600 12px Inter;cursor:pointer}
+
+/* ====== PLAYER BAR ====== */
+#playerBar{position:fixed;left:0;right:0;bottom:0;
+  background:rgba(23,26,33,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+  padding:10px 16px;display:flex;align-items:center;gap:14px;z-index:15;flex-wrap:wrap}
+#pArt{width:44px;height:44px;border-radius:8px;flex:none;background:linear-gradient(135deg,var(--accent),#444);background-size:cover}
+#pInfo{min-width:0;width:160px}
+#pTitle{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pArtist{font-size:12px;color:var(--muted)}
+#pPlay{background:var(--accent);color:var(--accent-ink);border:none;width:38px;height:38px;border-radius:50%;cursor:pointer;flex:none;font-size:14px;transition:transform .15s}
+#pPlay:hover{transform:scale(1.1)}
+.player-btns{display:flex;gap:4px;flex:none}
+.player-btns button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:6px;border-radius:6px;transition:all .2s}
+.player-btns button:hover{color:var(--text);background:var(--panel2)}
+.player-btns button.on{color:var(--accent)}
+.prog-wrap{flex:1;display:flex;align-items:center;gap:8px;min-width:150px}
+#pTime,#pDur{font-size:11px;color:var(--muted);width:32px;text-align:center}
+#prog{flex:1;height:4px;background:var(--panel2);border-radius:2px;position:relative;cursor:pointer}
+#prog:hover{height:6px}
+#progFill{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:2px;width:0%;transition:width .1s linear}
+.vol-wrap{display:flex;align-items:center;gap:6px;flex:none}
+#volSlider{width:70px;accent-color:var(--accent)}
+
+/* ====== MODAL ====== */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;align-items:center;justify-content:center;animation:fadeIn .2s}
+.modal-bg.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;width:280px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal h3{margin:0 0 14px}
+.modal input{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:14px Inter}
+.modal input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.modal button{width:100%;background:var(--accent);color:var(--accent-ink);border:none;padding:10px;border-radius:8px;font:600 14px Inter;cursor:pointer;transition:transform .15s}
+.modal button:hover{transform:scale(1.02)}
+
+/* ====== TOAST ====== */
+.toast{position:fixed;bottom:130px;left:50%;transform:translateX(-50%);background:var(--panel2);padding:8px 16px;
+  border-radius:20px;font-size:13px;opacity:0;transition:opacity .2s;z-index:30;pointer-events:none;border:1px solid var(--line)}
+.toast.show{opacity:1}
+
+/* ====== DEMO BUTTON ====== */
+#demoBtn{background:var(--panel2);color:var(--accent);border:1px solid var(--accent);padding:8px 14px;border-radius:20px;font:600 12px Inter;cursor:pointer;transition:all .2s}
+#demoBtn:hover{background:var(--accent);color:var(--accent-ink)}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width:600px){
+  #pInfo{width:80px}
+  #pTime,#pDur{display:none}
+  .hero{flex-direction:column;text-align:center}
+  main{padding-bottom:200px}
+  #playerBar{padding:8px 10px;gap:8px}
+  .vol-wrap{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Mifi<span>all</span></div>
+  <div class="theme-picker">
+    <button id="themeBtn" title="Piliin ang kulay">🎨</button>
+    <div class="swatch-panel" id="swatches"></div>
+  </div>
+  <nav>
+    <button data-tab="home" class="active">Home</button>
+    <button data-tab="playlist">Playlist</button>
+    <button data-tab="following">Following</button>
+  </nav>
+  <button id="demoBtn" title="Puno ng sample data">✨ Demo</button>
+  <button id="signInBtn">Sign in</button>
+  <div id="userChip"><div class="av"></div><span id="userName"></span></div>
+</header>
+
+<main>
+  <!-- HOME TAB -->
+  <section id="home" class="active">
+    <div class="hero">
+      <div class="art"></div>
+      <div>
+        <h1>Mifiall</h1>
+        <p>Ang iyong music player. Pakinggan, i-like, i-follow, at i-share ang mga paborito mong kanta.</p>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input id="searchInput" placeholder="Maghanap ng kanta o artist...">
+      <button id="webSearchBtn">🔎 I-search sa web</button>
+    </div>
+    <h2 style="font-size:15px;color:var(--muted);font-weight:600;margin:0 0 10px">Lahat ng kanta</h2>
+    <div id="homeList"></div>
+    <p id="noResults">Walang nahanap sa Mifiall. Subukan sa web sa itaas.</p>
+  </section>
+
+  <!-- PLAYLIST TAB -->
+  <section id="playlist">
+    <h2 style="font-size:15px;color:var(--muted);font-weight:600;margin:0 0 10px">Mga nai-like mo</h2>
+    <div id="likedList"></div>
+    <p id="emptyLiked" style="color:var(--muted);font-size:13px;display:none">Wala ka pang na-like. Pumunta sa Home at pindutin ang puso.</p>
+  </section>
+
+  <!-- FOLLOWING TAB -->
+  <section id="following">
+    <h2 style="font-size:15px;color:var(--muted);font-weight:600;margin:0 0 10px">Sinusundan mo</h2>
+    <div id="followList"></div>
+    <p id="emptyFollow" style="color:var(--muted);font-size:13px;display:none">Wala ka pang sinusundang artist.</p>
+  </section>
+</main>
+
+<!-- PLAYER BAR -->
+<div id="playerBar">
+  <div id="pArt"></div>
+  <div id="pInfo"><div id="pTitle">Pumili ng kanta</div><div id="pArtist">—</div></div>
+  <button id="pPlay">▶</button>
+  <div class="player-btns">
+    <button id="pPrev" title="Previous">⏮</button>
+    <button id="pNext" title="Next">⏭</button>
+    <button id="pShuffle" title="Shuffle">🔀</button>
+    <button id="pRepeat" title="Repeat">🔁</button>
+  </div>
+  <div class="prog-wrap">
+    <span id="pTime">0:00</span>
+    <div id="prog"><div id="progFill"></div></div>
+    <span id="pDur">0:00</span>
+  </div>
+  <div class="vol-wrap">
+    <span>🔊</span>
+    <input type="range" id="volSlider" min="0" max="100" value="100">
+  </div>
+</div>
+
+<!-- SIGN IN MODAL -->
+<div class="modal-bg" id="signInModal">
+  <div class="modal">
+    <h3>Mag-sign in</h3>
+    <input id="nameInput" placeholder="Palayaw mo">
+    <button id="doSignIn">Sign in</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== LISTAHAN NG KANTA ====== */
+/* Bawat kanta ay may file (MP3), title, artist, at album art color */
+const SONGS = [
+  {id:1, title:'1960s House', artist:'The Vinyl Collective', file:'1960s_house.mp3', art:'#ffb84d'},
+  {id:2, title:'Track 65',    artist:'Bahaghari',             file:'track65.mp3',      art:'#8b7cff'},
+  {id:3, title:'Track 87',    artist:'Tag-ulan',              file:'track87.mp3',      art:'#3ddc97'},
+  {id:4, title:'How Quiet',   artist:'Lunes Club',            file:'how_quiet.mp3',    art:'#4fc3f7'},
+  {id:5, title:'I Believed',  artist:'Silangan',              file:'i_believed.mp3',   art:'#c86dd7'},
+  {id:6, title:'Interest',    artist:'The Vinyl Collective',  file:'interest.mp3',     art:'#ff5c7a'},
+  {id:7, title:'Lizards',     artist:'Tag-ulan',              file:'lizards.mp3',      art:'#06d6a0'},
+  {id:8, title:'No Say',      artist:'Bahaghari',             file:'no_say.mp3',       art:'#ef476f'},
+  {id:9, title:'In West',     artist:'Silangan',              file:'in_west.mp3',      art:'#118ab2'},
+];
+
+/* ====== MGA KULAY PARA SA THEME PICKER ====== */
+const COLORS = ['#8b7cff','#ff5c7a','#3ddc97','#ffb84d','#4fc3f7','#f45b69','#c86dd7','#ffd166','#06d6a0','#ef476f','#118ab2','#e0e0e0'];
+
+/* ====== AUDIO PLAYER ====== */
+const player = new Audio();
+player.loop = false;
+let current = null;          // kasalukuyang tumutugtog
+let playing = false;         // status ng play
+let shuffle = false;         // shuffle mode
+let repeat = false;          // repeat mode
+let queue = [...SONGS];      // playlist order
+
+/* ====== LOCAL STORAGE (naka-save sa browser) ====== */
+const store = k => JSON.parse(localStorage.getItem(k) || 'null');
+const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+let liked = store('mifiall_liked') || [];
+let following = store('mifiall_following') || [];
+let theme = store('mifiall_theme') || COLORS[0];
+let user = store('mifiall_user') || null;
+let comments = store('mifiall_comments') || {};
+
+/* ====== ALBUM ART (auto-generated gradient) ====== */
+function songArt(song){
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>
+    <defs><linearGradient id='g${song.id}' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0%' stop-color='${song.art}'/><stop offset='100%' stop-color='#14161c'/>
+    </linearGradient></defs>
+    <rect width='300' height='300' fill='url(#g${song.id})'/>
+    <circle cx='225' cy='70' r='95' fill='${song.art}' opacity='0.35'/>
+    <circle cx='55' cy='245' r='65' fill='#ffffff' opacity='0.10'/>
+    <text x='20' y='268' font-family='sans-serif' font-size='20' font-weight='600' fill='white' opacity='0.92'>${song.title}</text>
+    <text x='20' y='288' font-family='sans-serif' font-size='13' fill='white' opacity='0.6'>${song.artist}</text>
+  </svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+/* ====== TOAST (notification) ====== */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+/* ====== THEME PICKER ====== */
+document.documentElement.style.setProperty('--accent', theme);
+const sw = document.getElementById('swatches');
+document.getElementById('themeBtn').onclick = e => { e.stopPropagation(); sw.classList.toggle('open'); };
+document.addEventListener('click', e => { if(!sw.contains(e.target) && e.target.id !== 'themeBtn') sw.classList.remove('open'); });
+COLORS.forEach(c => {
+  const d = document.createElement('div');
+  d.className = 'swatch' + (c === theme ? ' selected' : '');
+  d.style.background = c;
+  d.onclick = () => {
+    theme = c; save('mifiall_theme', c);
+    document.documentElement.style.setProperty('--accent', c);
+    [...sw.children].forEach(s => s.classList.remove('selected'));
+    d.classList.add('selected');
+    toast('Na-apply ang kulay');
+  };
+  sw.appendChild(d);
+});
+
+/* ====== SIGN IN ====== */
+const modal = document.getElementById('signInModal');
+document.getElementById('signInBtn').onclick = () => { if(!user) modal.classList.add('open'); };
+document.getElementById('doSignIn').onclick = () => {
+  const v = document.getElementById('nameInput').value.trim();
+  if(!v) return;
+  user = v; save('mifiall_user', v);
+  modal.classList.remove('open');
+  refreshUser();
+  toast('Na-sign in bilang ' + v);
+};
+modal.onclick = e => { if(e.target === modal) modal.classList.remove('open'); };
+function refreshUser(){
+  document.getElementById('signInBtn').style.display = user ? 'none' : 'block';
+  document.getElementById('userChip').style.display = user ? 'flex' : 'none';
+  document.getElementById('userName').textContent = user || '';
+}
+refreshUser();
+
+/* ====== TABS ====== */
+document.querySelectorAll('nav button').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('section').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.tab).classList.add('active');
+    render();
+  };
+});
+
+/* ====== COMMENTS ====== */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function addComment(songId, text){
+  if(!text.trim()) return;
+  if(!comments[songId]) comments[songId] = [];
+  comments[songId].push({name: user || 'Guest', text: text.trim()});
+  save('mifiall_comments', comments);
+}
+function commentsHTML(song){
+  const list = (comments[song.id] || []).map(c =>
+    `<div class="c-item"><b>${escapeHtml(c.name)}</b>${escapeHtml(c.text)}</div>`
+  ).join('') || '<div class="c-empty">Wala pang komento. Ikaw na ang una!</div>';
+  return `<div class="c-list">${list}</div>
+    <div class="c-input-row">
+      <input class="c-input" placeholder="Magkomento...">
+      <button class="c-send">Post</button>
+    </div>`;
+}
+function wireComments(box, song){
+  box.innerHTML = commentsHTML(song);
+  const send = () => {
+    addComment(song.id, box.querySelector('.c-input').value);
+    wireComments(box, song);
+  };
+  box.querySelector('.c-send').onclick = send;
+  box.querySelector('.c-input').addEventListener('keydown', e => { if(e.key === 'Enter') send(); });
+}
+
+/* ====== PLAY TRACK ====== */
+function playTrack(song){
+  current = song;
+  player.src = song.file;
+  player.currentTime = 0;
+  player.play().then(() => {
+    playing = true;
+    document.getElementById('pPlay').textContent = '⏸';
+  }).catch(err => {
+    toast('Hindi ma-play: ' + song.title + ' (check kung nasa folder)');
+    console.error(err);
+  });
+  document.getElementById('pTitle').textContent = song.title;
+  document.getElementById('pArtist').textContent = song.artist;
+  document.getElementById('pArt').style.background = `url('${songArt(song)}') center/cover`;
+}
+
+function togglePlay(){
+  if(!current){ playTrack(SONGS[0]); return; }
+  if(playing){ player.pause(); playing = false; document.getElementById('pPlay').textContent = '▶'; }
+  else { player.play(); playing = true; document.getElementById('pPlay').textContent = '⏸'; }
+}
+
+function nextTrack(){
+  if(!current) return playTrack(queue[0]);
+  let idx = queue.findIndex(s => s.id === current.id);
+  if(shuffle){
+    idx = Math.floor(Math.random() * queue.length);
+  } else {
+    idx = (idx + 1) % queue.length;
+  }
+  playTrack(queue[idx]);
+}
+
+function prevTrack(){
+  if(!current) return;
+  let idx = queue.findIndex(s => s.id === current.id);
+  idx = (idx - 1 + queue.length) % queue.length;
+  playTrack(queue[idx]);
+}
+
+/* ====== PLAYER CONTROLS ====== */
+document.getElementById('pPlay').onclick = togglePlay;
+document.getElementById('pNext').onclick = nextTrack;
+document.getElementById('pPrev').onclick = prevTrack;
+document.getElementById('pShuffle').onclick = e => {
+  shuffle = !shuffle;
+  e.currentTarget.classList.toggle('on', shuffle);
+  toast(shuffle ? 'Shuffle: ON' : 'Shuffle: OFF');
+};
+document.getElementById('pRepeat').onclick = e => {
+  repeat = !repeat;
+  player.loop = repeat;
+  e.currentTarget.classList.toggle('on', repeat);
+  toast(repeat ? 'Repeat: ON' : 'Repeat: OFF');
+};
+document.getElementById('volSlider').oninput = e => { player.volume = e.target.value / 100; };
+
+/* ====== PROGRESS BAR ====== */
+player.addEventListener('timeupdate', () => {
+  if(!player.duration) return;
+  const pct = (player.currentTime / player.duration) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('pTime').textContent = fmt(player.currentTime);
+  document.getElementById('pDur').textContent = fmt(player.duration);
+});
+document.getElementById('prog').onclick = e => {
+  if(!player.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  player.currentTime = pct * player.duration;
+};
+player.addEventListener('ended', () => { if(!repeat) nextTrack(); });
+
+function fmt(s){
+  s = Math.floor(s || 0);
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+}
+
+/* ====== LIKE / FOLLOW / SHARE / DOWNLOAD ====== */
+function toggleLike(id){
+  liked = liked.includes(id) ? liked.filter(x => x !== id) : [...liked, id];
+  save('mifiall_liked', liked);
+  render();
+}
+function toggleFollow(artist){
+  following = following.includes(artist) ? following.filter(x => x !== artist) : [...following, artist];
+  save('mifiall_following', following);
+  render();
+}
+function shareSong(song){
+  const text = `${song.title} — ${song.artist} sa Mifiall`;
+  if(navigator.share){ navigator.share({title: song.title, text}).catch(()=>{}); }
+  else { navigator.clipboard.writeText(text).then(() => toast('Nakopya para i-share')); }
+}
+function downloadSong(song){
+  const a = document.createElement('a');
+  a.href = song.file;
+  a.download = song.file;
+  a.click();
+  toast('Dina-download: ' + song.title);
+}
+
+/* ====== TRACK ROW (isang hilera ng kanta) ====== */
+function trackRow(song){
+  const isLiked = liked.includes(song.id);
+  const isFollowing = following.includes(song.artist);
+  const wrap = document.createElement('div');
+  wrap.className = 'track-wrap';
+  const row = document.createElement('div');
+  row.className = 'track';
+  row.innerHTML = `
+    <button class="play-pill" title="Play">▶</button>
+    <div class="art-sm" style="background-image:url('${songArt(song)}')"></div>
+    <div class="t-info">
+      <div class="t-title">${escapeHtml(song.title)}</div>
+      <div class="t-artist">${escapeHtml(song.artist)}
+        <button class="follow-btn ${isFollowing ? 'following' : ''}">${isFollowing ? 'Sinusundan' : 'Follow'}</button>
+      </div>
+    </div>
+    <div class="t-actions">
+      <button class="icon-btn like ${isLiked ? 'liked' : ''}" title="Like">${isLiked ? '♥' : '♡'}</button>
+      <button class="icon-btn comment-btn" title="Comment">💬</button>
+      <button class="icon-btn share" title="Share">⤴</button>
+      <button class="icon-btn dl" title="Download">⬇</button>
+    </div>`;
+  row.querySelector('.play-pill').onclick = () => playTrack(song);
+  row.querySelector('.follow-btn').onclick = () => toggleFollow(song.artist);
+  row.querySelector('.like').onclick = () => toggleLike(song.id);
+  row.querySelector('.share').onclick = () => shareSong(song);
+  row.querySelector('.dl').onclick = () => downloadSong(song);
+  const commentsBox = document.createElement('div');
+  commentsBox.className = 'comments-box';
+  wireComments(commentsBox, song);
+  row.querySelector('.comment-btn').onclick = () => {
+    commentsBox.style.display = commentsBox.style.display === 'block' ? 'none' : 'block';
+  };
+  wrap.appendChild(row);
+  wrap.appendChild(commentsBox);
+  return wrap;
+}
+
+/* ====== RENDER (i-drawing ang lahat) ====== */
+function render(){
+  const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  const home = document.getElementById('homeList');
+  home.innerHTML = '';
+  const matches = q
+    ? SONGS.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
+    : SONGS;
+  matches.forEach(s => home.appendChild(trackRow(s)));
+  document.getElementById('noResults').style.display = (q && matches.length === 0) ? 'block' : 'none';
+  document.getElementById('webSearchBtn').style.display = q ? 'flex' : 'none';
+  document.getElementById('webSearchBtn').onclick = () =>
+    window.open('https://www.google.com/search?q=' + encodeURIComponent(q + ' music'), '_blank');
+
+  // Playlist (liked songs)
+  const likedWrap = document.getElementById('likedList');
+  likedWrap.innerHTML = '';
+  const likedSongs = SONGS.filter(s => liked.includes(s.id));
+  likedSongs.forEach(s => likedWrap.appendChild(trackRow(s)));
+  document.getElementById('emptyLiked').style.display = likedSongs.length ? 'none' : 'block';
+
+  // Following
+  const followWrap = document.getElementById('followList');
+  followWrap.innerHTML = '';
+  following.forEach(artist => {
+    const div = document.createElement('div');
+    div.className = 'track';
+    div.innerHTML = `
+      <div class="art-sm" style="background:var(--accent)"></div>
+      <div class="t-info">
+        <div class="t-title">${escapeHtml(artist)}</div>
+        <div class="t-artist">Sinusundan mo</div>
+      </div>
+      <button class="follow-btn following">Sinusundan</button>`;
+    div.querySelector('.follow-btn').onclick = () => toggleFollow(artist);
+    followWrap.appendChild(div);
+  });
+  document.getElementById('emptyFollow').style.display = following.length ? 'none' : 'block';
+}
+
+/* ====== DEMO MODE (puno ng sample data) ====== */
+document.getElementById('demoBtn').onclick = () => {
+  liked = [1, 4, 5, 8];
+  following = ['Bahaghari', 'Tag-ulan', 'Silangan'];
+  comments = {
+    1: [{name:'Maria', text:'Ang ganda ng kanta!'}, {name:'Jose', text:'Paborito ko ito.'}],
+    4: [{name:'Ana', text:'Relaxing pakinggan.'}],
+  };
+  if(!user){ user = 'Demo User'; save('mifiall_user', user); refreshUser(); }
+  save('mifiall_liked', liked);
+  save('mifiall_following', following);
+  save('mifiall_comments', comments);
+  render();
+  toast('✨ Naka-load ang demo data');
+};
+
+/* ====== SIMULA ====== */
+render();
+document.getElementById('searchInput').addEventListener('input', render);
+</script>
+</body>
+</html>
